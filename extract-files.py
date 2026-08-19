@@ -28,6 +28,18 @@ lib_fixups: lib_fixups_user_type = {
     **lib_fixups,
 }
 
+
+_displayservice_ping = (
+    b'_ZN7lineage10frameworks14displayservice4V1_014IEventCallback4pingEv'
+)
+_displayservice_unresolved = (
+    rb'_ZN7lineage10frameworks14displayservice4V1_01[45]I[A-Za-z0-9_]*'
+    rb'(?:linkToDeath|unlinkToDeath|getDebugInfo|getHashChain|'
+    rb'interfaceChain|interfaceDescriptor|5debug|registerForNotifications)'
+    rb'[A-Za-z0-9_]*'
+)
+
+
 blob_fixups: blob_fixups_user_type = {
     'vendor/etc/sensors/hals.conf': blob_fixup()
         .regex_replace('android.hardware.sensors@2.X-subhal-mediatek.so', 'android.hardware.sensors@2.0-subhal-impl-1.0.so')
@@ -54,7 +66,16 @@ blob_fixups: blob_fixups_user_type = {
         .clear_symbol_version('AHardwareBuffer_release')
         .clear_symbol_version('AHardwareBuffer_unlock'),
     ('vendor/lib64/lib3a.ae.pipe.so', 'vendor/lib64/mt6895/libaaa_toneutil.so', 'vendor/lib64/mt6895/lib3a.flash.so', 'vendor/lib64/mt6895/lib3a.sensors.color.so', 'vendor/lib64/mt6895/lib3a.sensors.flicker.so'): blob_fixup()
-        .add_needed('liblog.so')
+        .add_needed('liblog.so'),
+    'vendor/lib64/mt6895/libmtkcam_hal_android_app_cbadaptor.so': blob_fixup()
+        .replace_needed('android.frameworks.displayservice@1.0.so',
+                        'lineage.frameworks.displayservice@1.0.so')
+        .binary_regex_replace(
+            b'7android10frameworks14displayservice',
+            b'7lineage10frameworks14displayservice')
+        .binary_regex_replace(
+            _displayservice_unresolved,
+            lambda m: _displayservice_ping.ljust(len(m.group(0)), b'\x00')),
 }  # fmt: skip
 
 module = ExtractUtilsModule(
