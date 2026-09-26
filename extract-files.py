@@ -38,6 +38,10 @@ _displayservice_unresolved = (
     rb'interfaceChain|interfaceDescriptor|5debug|registerForNotifications)'
     rb'[A-Za-z0-9_]*'
 )
+_displayservice_ctor_vtable = (
+    rb'_ZTCN[A-Za-z0-9_]+E\d+_'
+    rb'N7lineage10frameworks14displayservice4V1_01[45]I[A-Za-z0-9_]*E'
+)
 
 
 blob_fixups: blob_fixups_user_type = {
@@ -75,6 +79,9 @@ blob_fixups: blob_fixups_user_type = {
             b'7lineage10frameworks14displayservice')
         .binary_regex_replace(
             _displayservice_unresolved,
+            lambda m: _displayservice_ping.ljust(len(m.group(0)), b'\x00'))
+        .binary_regex_replace(
+            _displayservice_ctor_vtable,
             lambda m: _displayservice_ping.ljust(len(m.group(0)), b'\x00')),
 }  # fmt: skip
 
