@@ -19,6 +19,7 @@ from extract_utils.main import (
 
 namespace_imports = [
     'hardware/mediatek',
+    'hardware/mediatek/libion_mtk',
     'hardware/xiaomi',
     'vendor/xiaomi/mt6895-common',
 ]
